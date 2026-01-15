@@ -1,6 +1,6 @@
 # ArxiGraph
 
-ArxiGraph is the **web UI** for exploring ArxiTex outputs (document graphs + definition banks) and for running the ArxiTex extraction pipeline via a local backend.
+ArxiGraph is the **web UI** for exploring [ArxiTex](https://github.com/dsleo/arxitex/tree/main) outputs (document graphs + definition banks) and for running the ArxiTex extraction pipeline via a local backend.
 
 ## What this app does
 
@@ -9,9 +9,7 @@ ArxiGraph is the **web UI** for exploring ArxiTex outputs (document graphs + def
 
 ## Local development
 
-### 1) Start the Python backend (ArxiTex)
-
-From the repo root:
+### 1) Start the Python backend of [ArxiTex](https://github.com/dsleo/arxitex/tree/main)
 
 ```bash
 python -m venv .venv
@@ -20,12 +18,6 @@ pip install -r requirements.txt
 pip install -e .
 
 uvicorn arxitex.server.app:app --reload --port 8000
-```
-
-Backend health check:
-
-```bash
-curl http://127.0.0.1:8000/health
 ```
 
 > Note: if you enable enhancements (dependency inference / definition enrichment), the backend requires `OPENAI_API_KEY`.

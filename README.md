@@ -2,10 +2,15 @@
 
 ArxiGraph is the **web UI** for exploring [ArxiTex](https://github.com/dsleo/arxitex/tree/main) outputs (document graphs + definition banks) and for running the ArxiTex extraction pipeline via a local backend.
 
+![Homepage](docs/images/arxigraph_homepage.png)
+
 ## What this app does
 
 - Browse paper graphs exported to JSON (e.g. from a Hugging Face dataset) and visualize artifacts + dependencies.
 - Call the ArxiTex **FastAPI backend** to process a paper on-demand and stream results to the UI.
+
+![Example](docs/images/arxigraph_example.png)
+
 
 ## Local development
 

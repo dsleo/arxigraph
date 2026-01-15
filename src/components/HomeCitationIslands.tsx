@@ -96,34 +96,9 @@ function clusterForce(
     return force as any;
 }
 
-function containInIslandsForce(
-    nodes: PaperNode[],
-    centersByRank: Map<number, { x: number; y: number; r: number }>,
-    padding = 10,
-) {
-    function force() {
-        for (const n of nodes) {
-            const c = centersByRank.get(n.componentRank);
-            if (!c || typeof n.x !== 'number' || typeof n.y !== 'number') continue;
-
-            const dx = n.x - c.x;
-            const dy = n.y - c.y;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const max = Math.max(1, c.r - padding - n.r);
-            if (dist <= max) continue;
-
-            const k = max / dist;
-            n.x = c.x + dx * k;
-            n.y = c.y + dy * k;
-            n.vx = (n.vx ?? 0) * 0.6;
-            n.vy = (n.vy ?? 0) * 0.6;
-        }
-    }
-    (force as any).initialize = () => {
-        // no-op
-    };
-    return force as any;
-}
+// NOTE: there used to be a "contain in island" force here. We removed it
+// because it wasn’t used and caused lint noise. If we want hard island bounds
+// again, reintroduce a custom force and add it to the simulation.
 
 export default function HomeCitationIslands({
     topK = DEFAULT_TOP_K,

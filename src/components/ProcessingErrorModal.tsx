@@ -109,6 +109,11 @@ const ERROR_COPY: Record<string, ErrorCopy> = {
         primaryActionLabel: "Retry",
         allowRetry: true,
     },
+    backend_version_mismatch: {
+        title: "The backend API version is incompatible",
+        description:
+            "This ArxiGraph deployment expects a different ArxiTex backend API version. Please update either the frontend or backend so their API versions match.",
+    },
     unexpected_error: {
         title: "Something went wrong while processing this paper",
         description:

@@ -12,6 +12,7 @@ import DefinitionBankCard, { type DefinitionBankEntry } from '@/components/Defin
 import { typesetMath } from '@/components/constellations/mathjax';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_ARXITEX_BACKEND_URL ?? 'http://127.0.0.1:8000';
+const EXPECTED_BACKEND_API_VERSION = process.env.NEXT_PUBLIC_ARXITEX_API_VERSION;
 
 const HF_DATASET_ORG = process.env.NEXT_PUBLIC_HF_DATASET_ORG;
 const HF_DATASET_REPO = process.env.NEXT_PUBLIC_HF_DATASET_REPO;
@@ -119,6 +120,27 @@ async function fetchArxivMetadata(arxivId: string): Promise<PaperMeta> {
 
     const json = (await res.json()) as { title: string; authors: string[]; abstract?: string };
     return { title: json.title, authors: json.authors, abstract: json.abstract ?? '' };
+}
+
+async function assertBackendApiVersion(backendUrl: string) {
+    if (!EXPECTED_BACKEND_API_VERSION) return;
+
+    const url = `${backendUrl.replace(/\/$/, '')}/version`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) {
+        throw new Error(`Backend version check failed (status ${res.status})`);
+    }
+
+    const json = (await res.json()) as { api_version?: string; version?: string; name?: string };
+    const api = String(json.api_version ?? '');
+    if (!api) {
+        throw new Error('Backend did not return api_version from /version');
+    }
+    if (api !== EXPECTED_BACKEND_API_VERSION) {
+        throw new Error(
+            `Backend API version mismatch: expected ${EXPECTED_BACKEND_API_VERSION} but got ${api}`,
+        );
+    }
 }
 
 export default function PaperPage() {
@@ -296,6 +318,14 @@ export default function PaperPage() {
             ]);
 
             try {
+                if (EXPECTED_BACKEND_API_VERSION) {
+                    setStatus((prev) => [
+                        ...prev,
+                        `Checking backend API version (expecting ${EXPECTED_BACKEND_API_VERSION})...`,
+                    ]);
+                    await assertBackendApiVersion(BACKEND_URL);
+                }
+
                 console.log('[Backend] POST', `${BACKEND_URL}/process-paper`, {
                     arxivUrl: absUrl,
                     enrichContent,
@@ -524,10 +554,11 @@ export default function PaperPage() {
                         ? err.message
                         : 'Failed to contact processing backend.';
 
-                // Treat network/transport failures as a structured backend error so
-                // users see the dedicated modal instead of a raw "Failed to fetch".
+                // If the failure came from our version check, report it as a distinct error.
                 const backendError: ProcessingError = {
-                    code: 'backend_unreachable',
+                    code: EXPECTED_BACKEND_API_VERSION
+                        ? 'backend_version_mismatch'
+                        : 'backend_unreachable',
                     message,
                     stage: 'backend',
                 };
